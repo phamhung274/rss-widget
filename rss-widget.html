@@ -2,71 +2,84 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Tin tức công nghệ</title>
+  <title>Tin tức Công nghệ</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f7f7f7;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
       margin: 0;
       padding: 20px;
-      color: #333;
     }
     h2 {
-      color: #d11a2a;
       text-align: center;
+      color: #222;
+      margin-bottom: 30px;
     }
-    .feed-container {
-      max-width: 800px;
+    .feed-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
       margin: 0 auto;
     }
-    .item {
+    .card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: row;
-      gap: 15px;
-      background: white;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      overflow: hidden;
+      align-items: center;
+      padding: 12px;
+      gap: 14px;
+      transition: transform 0.2s ease;
     }
-    .item img {
-      width: 150px;
-      height: 100px;
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .card img {
+      width: 90px;
+      height: 90px;
       object-fit: cover;
+      border-radius: 10px;
+      flex-shrink: 0;
     }
-    .item-content {
-      padding: 10px;
+    .card-content {
       flex: 1;
     }
-    .item-content a {
+    .card-content a {
       font-size: 16px;
       font-weight: bold;
       text-decoration: none;
-      color: #d11a2a;
+      color: #0077cc;
     }
-    .item-content p {
-      margin: 5px 0;
-      font-size: 13px;
-      color: #666;
+    .card-content a:hover {
+      text-decoration: underline;
+    }
+    .card-content p {
+      font-size: 14px;
+      color: #555;
+      margin: 4px 0;
     }
     #load-more {
       display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      background-color: #d11a2a;
+      margin: 30px auto;
+      padding: 10px 22px;
+      background-color: #0077cc;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 15px;
     }
     #load-more:hover {
-      background-color: #b01020;
+      background-color: #005fa3;
     }
   </style>
 </head>
 <body>
-  <div class="feed-container" id="rss-feed">Đang tải...</div>
+  <div class="feed-grid" id="rss-feed">Đang tải...</div>
   <button id="load-more" style="display:none;">Xem thêm</button>
 
   <script>
@@ -74,9 +87,9 @@
     const apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
 
     let allItems = [];
-    let visibleCount = 5;
+    let visibleCount = 6;
 
-    function truncate(text, maxLength = 100) {
+    function truncate(text, maxLength = 120) {
       return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
 
@@ -85,25 +98,21 @@
       container.innerHTML = '';
       allItems.slice(0, visibleCount).forEach(item => {
         const div = document.createElement('div');
-        div.className = 'item';
-        const imageUrl = item.enclosure && item.enclosure.link ? item.enclosure.link : 'https://via.placeholder.com/150x100?text=No+Image';
+        div.className = 'card';
+        const imageUrl = item.enclosure && item.enclosure.link ? item.enclosure.link : 'https://via.placeholder.com/90?text=No+Image';
         const description = item.description ? item.description.replace(/<[^>]*>?/gm, '') : '';
         div.innerHTML = `
           <img src="${imageUrl}" alt="News Image">
-          <div class="item-content">
+          <div class="card-content">
             <a href="${item.link}" target="_blank">${item.title}</a>
             <p>${truncate(description)}</p>
-            <p>${new Date(item.pubDate).toLocaleString()}</p>
+            <p><small>${new Date(item.pubDate).toLocaleString()}</small></p>
           </div>`;
         container.appendChild(div);
       });
 
       const loadMoreBtn = document.getElementById('load-more');
-      if (visibleCount < allItems.length) {
-        loadMoreBtn.style.display = 'block';
-      } else {
-        loadMoreBtn.style.display = 'none';
-      }
+      loadMoreBtn.style.display = visibleCount < allItems.length ? 'block' : 'none';
     }
 
     fetch(apiUrl)
@@ -117,7 +126,7 @@
       });
 
     document.getElementById('load-more').addEventListener('click', () => {
-      visibleCount += 5;
+      visibleCount += 6;
       renderItems();
     });
   </script>
